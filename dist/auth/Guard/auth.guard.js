@@ -14,10 +14,12 @@ const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
 const jwt_1 = require("@nestjs/jwt");
 const public_decorator_1 = require("../decorator/public.decorator");
+const config_1 = require("@nestjs/config");
 let AuthGuard = class AuthGuard {
-    constructor(jwtService, reflector) {
+    constructor(jwtService, reflector, configService) {
         this.jwtService = jwtService;
         this.reflector = reflector;
+        this.configService = configService;
     }
     async canActivate(context) {
         const isPublic = this.reflector.getAllAndOverride(public_decorator_1.IS_PUBLIC_KEY, [
@@ -29,16 +31,13 @@ let AuthGuard = class AuthGuard {
         }
         const request = context.switchToHttp().getRequest();
         const token = this.extractTokenFromHeader(request);
-        console.log("fff", token);
         if (!token) {
-            console.log("first");
             throw new common_1.UnauthorizedException();
         }
         try {
             const payload = await this.jwtService.verifyAsync(token, {
-                secret: "HELLO",
+                secret: this.configService.get('JWT_SECRET'),
             });
-            console.log("jfjdf", payload);
             request['user'] = payload;
         }
         catch (_a) {
@@ -52,13 +51,12 @@ let AuthGuard = class AuthGuard {
             return undefined;
         }
         const [type, token] = authorizationHeader.split(' ');
-        console.log(token, "fffff");
         return type === 'Bearer' ? token : undefined;
     }
 };
 AuthGuard = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [jwt_1.JwtService, core_1.Reflector])
+    __metadata("design:paramtypes", [jwt_1.JwtService, core_1.Reflector, config_1.ConfigService])
 ], AuthGuard);
 exports.AuthGuard = AuthGuard;
 //# sourceMappingURL=auth.guard.js.map

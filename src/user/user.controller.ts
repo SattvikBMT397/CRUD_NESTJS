@@ -23,8 +23,6 @@ export class UserController {
   @Put('/update/:id') 
   async update( @Req() req: Request,@Res() res: Response,@Param('id') id: string, @Body() updateUserDto: UpdateUserDto
   ): Promise<Response> {
-    console.log(updateUserDto);
-    console.log("id", id);
     const updateData = await this.userService.updateUser(id, updateUserDto);
     return res.send(updateData);
   }

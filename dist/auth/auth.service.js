@@ -45,16 +45,12 @@ let AuthService = class AuthService {
     }
     async login(loginDto) {
         const { email, password } = loginDto;
-        console.log(loginDto);
         try {
             const user = await this.userRepository.findOne(undefined, email);
             if (!user) {
                 throw new common_1.UnauthorizedException('User not found.');
             }
-            console.log(user.password);
-            console.log(password);
             const isPasswordValid = await bcrypt.compare(password, user.password);
-            console.log(isPasswordValid);
             if (!isPasswordValid) {
                 throw new common_1.UnauthorizedException('Invalid password.');
             }

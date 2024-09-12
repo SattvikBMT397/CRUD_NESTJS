@@ -54,7 +54,6 @@ let UserRepository = class UserRepository {
     }
     async restoreUser(id) {
         const result = await this.repository.restore(id);
-        console.log(result, "result");
         if (result.affected === 0) {
             throw new common_1.NotFoundException(`User with ID ${id} not found or not soft-deleted.`);
         }

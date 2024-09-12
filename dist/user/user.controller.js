@@ -30,8 +30,6 @@ let UserController = class UserController {
         return res.send(users);
     }
     async update(req, res, id, updateUserDto) {
-        console.log(updateUserDto);
-        console.log("id", id);
         const updateData = await this.userService.updateUser(id, updateUserDto);
         return res.send(updateData);
     }

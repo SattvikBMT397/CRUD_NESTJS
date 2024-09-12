@@ -53,7 +53,6 @@ export class UserRepository {
 
   async restoreUser(id: string): Promise<{ message: string }> {
     const result = await this.repository.restore(id);
-    console.log(result, "result");
 
     if (result.affected === 0) {
       throw new NotFoundException(`User with ID ${id} not found or not soft-deleted.`);

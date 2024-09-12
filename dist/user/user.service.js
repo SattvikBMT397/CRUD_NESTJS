@@ -18,62 +18,91 @@ let UsersService = class UsersService {
         this.userRepository = userRepository;
     }
     async createUser(createUserDto) {
-        const existingUser = await this.userRepository.findOne(undefined, createUserDto.email);
-        console.log("existingUser", existingUser);
-        if (existingUser) {
-            if (existingUser.deleted_at) {
-                await this.userRepository.restoreUser(existingUser.id);
-                return {
-                    msg: "User Registered successfully",
-                    status: common_1.HttpStatus.OK,
-                    data: existingUser,
-                };
+        try {
+            const existingUser = await this.userRepository.findOne(undefined, createUserDto.email);
+            if (existingUser) {
+                if (existingUser.deleted_at) {
+                    await this.userRepository.restoreUser(existingUser.id);
+                    return {
+                        msg: "User Registered successfully",
+                        status: common_1.HttpStatus.OK,
+                        data: existingUser,
+                    };
+                }
+                throw new common_1.ConflictException('User with this email already exists.');
             }
-            throw new common_1.ConflictException('User with this email already exists.');
+            const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+            const newUser = Object.assign(Object.assign({}, createUserDto), { password: hashedPassword });
+            const userData = await this.userRepository.createUser(newUser);
+            return {
+                msg: "User registered successfully",
+                status: common_1.HttpStatus.OK,
+                data: userData,
+            };
         }
-        const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-        const newUser = Object.assign(Object.assign({}, createUserDto), { password: hashedPassword });
-        const userData = await this.userRepository.createUser(newUser);
-        return {
-            msg: "User registered successfully",
-            status: common_1.HttpStatus.OK,
-            data: userData,
-        };
+        catch (error) {
+            throw error;
+        }
     }
     async findAllUsers() {
-        return await this.userRepository.findAllUsers();
+        try {
+            return await this.userRepository.findAllUsers();
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async findOne(id, email) {
-        const user = await this.userRepository.findOne(id, email);
-        if (!user)
-            throw new common_1.NotFoundException('User not found');
-        return user;
+        try {
+            const user = await this.userRepository.findOne(id, email);
+            if (!user)
+                throw new common_1.NotFoundException('User not found');
+            return user;
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async updateUser(id, updateUserDto) {
-        const updatedUser = await this.userRepository.updateUser(id, updateUserDto);
-        return {
-            status: common_1.HttpStatus.OK,
-            message: "Data updated successfully",
-            result: updatedUser,
-        };
+        try {
+            const updatedUser = await this.userRepository.updateUser(id, updateUserDto);
+            return {
+                status: common_1.HttpStatus.OK,
+                message: "Data updated successfully",
+                result: updatedUser,
+            };
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async deleteUser(id) {
-        const user = await this.userRepository.findOne(id);
-        if (!user)
-            throw new common_1.NotFoundException('User not found');
-        await this.userRepository.softDeleteUser(id);
-        return {
-            status: common_1.HttpStatus.OK,
-            message: "Data deleted successfully",
-            ID: id,
-        };
+        try {
+            const user = await this.userRepository.findOne(id);
+            if (!user)
+                throw new common_1.NotFoundException('User not found');
+            await this.userRepository.softDeleteUser(id);
+            return {
+                status: common_1.HttpStatus.OK,
+                message: "Data deleted successfully",
+                ID: id,
+            };
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async restoreUser(id) {
-        const restoredUser = await this.userRepository.restoreUser(id);
-        return {
-            status: common_1.HttpStatus.OK,
-            message: restoredUser.message,
-        };
+        try {
+            const restoredUser = await this.userRepository.restoreUser(id);
+            return {
+                status: common_1.HttpStatus.OK,
+                message: restoredUser.message,
+            };
+        }
+        catch (error) {
+            throw error;
+        }
     }
 };
 UsersService = __decorate([
